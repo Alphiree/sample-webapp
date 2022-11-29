@@ -7,6 +7,17 @@ import joblib
 
 from streamlit_option_menu import option_menu
 
+st.set_page_config(initial_sidebar_state="expanded")
+
+with st.sidebar:
+    selected = option_menu(
+                menu_title='Main Menu',
+                options = ['Home','Predict'],
+                icons = ['house','book'],
+                menu_icon='cast',
+                default_index = 0,
+        )
+
 def column_ratio(X):
     return X[:, [0]] / X[:, [1]]
 
@@ -37,8 +48,12 @@ class ClusterSimilarity(BaseEstimator, TransformerMixin):
         return [f"Cluster {i} similarity" for i in range(self.n_clusters)]
 
 
+@st.cache(allow_output_mutation=True)
+def model():
+    final_model_reloaded = joblib.load("housing.pkl")
+    return final_model_reloaded
 
-final_model_reloaded = joblib.load("housing.pkl")
+final_model_reloaded = model()
 
 
 
@@ -48,16 +63,6 @@ def get_data():
     return housing
 
 
-st.set_page_config(initial_sidebar_state="expanded")
-
-with st.sidebar:
-    selected = option_menu(
-                menu_title='Main Menu',
-                options = ['Home','Predict'],
-                icons = ['house','book'],
-                menu_icon='cast',
-                default_index = 0,
-        )
 
 
 # selected = option_menu(
