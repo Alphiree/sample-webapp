@@ -44,7 +44,7 @@ final_model_reloaded = joblib.load("housing.pkl")
 
 @st.cache
 def get_data():
-    housing = pd.read_csv("data\\housing.csv")
+    housing = pd.read_csv("housing.csv")
     return housing
 
 
