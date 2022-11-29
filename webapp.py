@@ -6,10 +6,10 @@ import seaborn as sns
 import joblib
 
 from streamlit_option_menu import option_menu
-
+@st.cache
 def column_ratio(X):
     return X[:, [0]] / X[:, [1]]
-
+@st.cache
 def ratio_name(function_transformer, feature_names_in):
     return ["ratio"]
 
@@ -18,7 +18,7 @@ from sklearn.metrics.pairwise import rbf_kernel
 from sklearn.base import BaseEstimator, TransformerMixin
 
 # using cluster similarity, this is the better method since this uses fit and transform 
-
+@st.cache
 class ClusterSimilarity(BaseEstimator, TransformerMixin):
     def __init__(self, n_clusters=10, gamma=1.0, random_state=None):
         self.n_clusters = n_clusters
@@ -37,8 +37,12 @@ class ClusterSimilarity(BaseEstimator, TransformerMixin):
         return [f"Cluster {i} similarity" for i in range(self.n_clusters)]
 
 
+@st.cache
+def get_model():
+    final_model_reloaded = joblib.load("housing.pkl")
+    return final_model_reloaded
 
-final_model_reloaded = joblib.load("housing.pkl")
+final_model_reloaded = get_model()
 
 
 @st.cache
