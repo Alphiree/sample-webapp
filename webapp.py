@@ -38,12 +38,12 @@ class ClusterSimilarity(BaseEstimator, TransformerMixin):
 
 
 
-final_model_reloaded = joblib.load("housing.pkl")
+final_model_reloaded = joblib.load("data\\housing.pkl")
 
 
 @st.cache
 def get_data():
-    housing = pd.read_csv("housing.csv")
+    housing = pd.read_csv("data\\housing.csv")
     return housing
 
 
