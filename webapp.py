@@ -38,7 +38,8 @@ class ClusterSimilarity(BaseEstimator, TransformerMixin):
 
 
 
-final_model_reloaded = joblib.load("data\\housing.pkl")
+final_model_reloaded = joblib.load("housing.pkl")
+
 
 
 @st.cache
