@@ -7,7 +7,7 @@ import joblib
 
 from streamlit_option_menu import option_menu
 
-st.set_page_config(initial_sidebar_state="expanded")
+st.set_page_config(initial_sidebar_state="expanded",page_title='Calfironia Housing Prediction by Alphire')
 
 with st.sidebar:
     selected = option_menu(
