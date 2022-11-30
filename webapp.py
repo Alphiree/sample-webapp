@@ -79,7 +79,11 @@ if selected == 'Home':
     dataset = st.container()
 
     with header:
+<<<<<<< HEAD
         st.title('alphire loves atha')
+=======
+        st.title('love u bebi atha')
+>>>>>>> testing-waters
         st.header("this is a machine learning program for predicting the price of california houses")
 
     with dataset:
