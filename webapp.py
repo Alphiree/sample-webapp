@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
+import os
 
 from streamlit_option_menu import option_menu
 
@@ -47,6 +48,150 @@ class ClusterSimilarity(BaseEstimator, TransformerMixin):
     def get_feature_names_out(self, names=None):
         return [f"Cluster {i} similarity" for i in range(self.n_clusters)]
 
+def save_fig(fig_id,path, tight_layout=True, fig_extension="png", resolution=300):
+    path = os.path.join(path, fig_id + "." + fig_extension)
+    print("Saving figure", fig_id)
+    if tight_layout:
+        plt.tight_layout()
+    plt.savefig(path, format=fig_extension, dpi=resolution)
+
+
+def get_dimension(length):
+    if length == 1:
+        m = 1
+        n = 1
+    elif length == 2:
+        m = 1
+        n = 2
+    else:
+        initial = 2
+        initial_2 = 1
+        while length > initial**2:
+            initial = initial + 1
+        
+        n = initial
+
+        while length > initial_2*n:
+            initial_2 = initial_2 + 1
+        
+        m = initial_2
+
+    return m,n
+        
+
+def uni_num_hist(df,num,figsize=(12,8),
+                 nrows=None,ncol=None,
+                 specific=None,save_path=None,
+                 bins=50):
+    cmap = plt.get_cmap("Dark2")
+    val = 0
+
+    if specific != None:
+        fig, axes = plt.subplots(1, 1, figsize=figsize)
+        sns.histplot(x=df[specific],
+                    bins=bins,kde=True,color=cmap(val))
+        axes.set_title(f'{str(specific)} Distribution')
+
+        st.pyplot(fig)
+        
+        if save_path != None:
+            name = specific+'_Distribution'
+            save_fig(name,save_path)
+
+        return None
+    
+    if nrows == None and ncol == None:
+        nrows, ncol = get_dimension(len(num))
+    
+    
+
+    fig, axes = plt.subplots(nrows, ncol, figsize=figsize)
+
+    if nrows == 1 and ncol == 1:
+        sns.histplot(x=df[num[val]],
+                    bins=bins,kde=True,color=cmap(val))
+        axes.set_title(f'{str(num[val])} Distribution')
+
+        st.pyplot(fig)
+
+        if save_path != None:
+            name = 'Numerical_Distribution'
+            save_fig(name,save_path)
+
+    elif (nrows == 1 and ncol == 2):
+        for i in range(nrows):
+            for j in range(ncol):
+                if val in range(len(num)):
+                    sns.histplot(x=df[num[val]],
+                        bins=bins,kde=True,color=cmap(val),ax=axes[j])
+                    axes[j].set_title(f'{str(num[val])} Distribution')
+                    val += 1
+                    plt.tight_layout()
+                else:
+                    ## This is to remove the extra plots
+                    fig.delaxes(axes[i,j])
+        st.pyplot(fig)
+        
+        if save_path != None:
+            name = 'Numerical_Distribution'
+            save_fig(name,save_path)
+    
+    elif (nrows == 2 and ncol == 1):
+        for i in range(nrows):
+            for j in range(ncol):
+                if val in range(len(num)):
+                    sns.histplot(x=df[num[val]],
+                        bins=bins,kde=True,color=cmap(val),ax=axes[i])
+                    axes[i].set_title(f'{str(num[val])} Distribution')
+                    val += 1
+                    plt.tight_layout()
+                else:
+                    ## This is to remove the extra plots
+                    fig.delaxes(axes[i,j])
+        st.pyplot(fig)
+
+
+
+
+    else:
+        for i in range(nrows):
+            for j in range(ncol):
+                if val in range(len(num)):
+                    sns.histplot(x=df[num[val]],ax=axes[i,j],
+                                bins=bins,kde=True,color=cmap(val))
+                    axes[i,j].set_title(f'{str(num[val])} Distribution')
+                    val += 1
+                    plt.tight_layout()
+                else:
+                        ## This is to remove the extra plots
+                        fig.delaxes(axes[i,j])
+        st.pyplot(fig)
+
+        if save_path != None:
+            name = 'Numerical_Distribution'
+            save_fig(name,save_path)
+
+## Note: we can use plt.tight_layout when plotting on subplots
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @st.cache(allow_output_mutation=True)
 def model():
@@ -74,25 +219,36 @@ def get_data():
 #                 orientation='horizontal'
 #         )
 
+housing = get_data()
+
+numerical = housing.select_dtypes(exclude=['object']).columns.tolist()
+
 if selected == 'Home':
     header = st.container()
     dataset = st.container()
 
     with header:
-        st.title('California Housing Prediction')
-        st.header("this is a machine learning program for predicting the price of california houses")
+        st.title('Machine Learning Algorithms for predicting California House Prices.')
 
     with dataset:
-        st.header('this is our dataset')
-        st.subheader('Dataset')
-        st.text('this is the dataset that I got from the book')
+        st.header('Dataset')
+        st.text('This is the dataset I used to create machine learning models. \n')
+        st.text(f'This dataset consists of {housing.shape[0]} rows and {housing.shape[1]} columns.')
+        st.text('Here is the first 5 rows')
         housing = get_data()
         st.write(housing.head())
-        corr_matrix = housing.corr()
+        corr_matrix = housing[numerical].corr()
+
+        st.header('Exploratory Data Analysis')
+
+        st.subheader('Numerical Features Distribution')
+        st.write('This is the distribution of our numerical features')
+        uni_num_hist(housing,numerical)
+
         st.subheader('Correlation Matrix')
-        st.write('This is the correlation matrix for our numerical variables')
+        st.write('This is the correlation matrix of our numerical features')
         fig = plt.figure(figsize=(12,8))
-        sns.heatmap(corr_matrix,annot=True,fmt='.2f',cmap='summer')
+        sns.heatmap(corr_matrix,annot=True,fmt='.2f',cmap='RdBu_r',vmin=-1, vmax=1)
         st.write(fig) 
 
 if selected == 'Predict':
