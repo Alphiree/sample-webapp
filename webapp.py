@@ -201,6 +201,8 @@ def uni_cat_count(df,cat,figsize=(12,8),
         if save_path != None:
             name = 'Categorical_Distribution'
             save_fig(name,save_path)
+        
+        st.pyplot(fig)
 
     elif (nrows == 1 and ncol == 2):
         for i in range(nrows):
@@ -325,7 +327,7 @@ if selected == 'Home':
         st.subheader('Categorical Features Distribution')
         st.write('This is the distribution of our categorical features')
         st.set_option('deprecation.showPyplotGlobalUse', False)
-        st.pyplot(uni_cat_count(housing,categorical))
+        uni_cat_count(housing,categorical)
 
         st.subheader('Correlation Matrix')
         st.write('This is the correlation matrix of our numerical features')
