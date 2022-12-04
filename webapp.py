@@ -173,7 +173,83 @@ def uni_num_hist(df,num,figsize=(12,8),
 
 ## Note: we can use plt.tight_layout when plotting on subplots
 
+def uni_cat_count(df,cat,figsize=(12,8),
+                 nrows=None,ncol=None,specific=None,save_path=None):
+    val = 0
 
+    ## If specific column is defined:
+    if specific != None:
+        fig, axes = plt.subplots(1, 1, figsize=figsize)
+        sns.countplot(x=df[specific],order = df[specific].drop_duplicates().sort_values())
+        axes.set_title(f'{str(specific)} Distribution')
+
+        if save_path != None:
+            name = specific+'_Distribution'
+            save_fig(name,save_path)
+
+        return None
+
+    if nrows == None and ncol == None:
+        nrows, ncol = get_dimension(len(cat))
+    
+    fig, axes = plt.subplots(nrows, ncol, figsize=figsize)
+    
+    if nrows == 1 and ncol == 1:
+        sns.countplot(x=df[cat[val]],order = df[cat[val]].drop_duplicates().sort_values())
+        axes.set_title(f'{str(cat[val])} Distribution')
+
+        if save_path != None:
+            name = 'Categorical_Distribution'
+            save_fig(name,save_path)
+
+    elif (nrows == 1 and ncol == 2):
+        for i in range(nrows):
+            for j in range(ncol):
+                if val in range(len(cat)):
+                    sns.countplot(x=df[cat[val]],order = df[cat[val]].drop_duplicates().sort_values(),ax=axes[j])
+                    axes[j].set_title(f'{str(cat[val])} Distribution')
+                    if save_path != None:
+                        name = df[cat[val]]+'_Distribution'
+                        save_fig(name,save_path)
+                    val += 1
+                    plt.tight_layout()
+                else:
+                    ## This is to remove the extra plots
+                    fig.delaxes(axes[i,j])
+        
+        if save_path != None:
+            name = 'Categorical_Distribution'
+            save_fig(name,save_path)
+
+    elif (nrows == 2 and ncol == 1):
+        for i in range(nrows):
+            for j in range(ncol):
+                if val in range(len(cat)):
+                    sns.countplot(x=df[cat[val]],order = df[cat[val]].drop_duplicates().sort_values(),ax=axes[i])
+                    axes[i].set_title(f'{str(cat[val])} Distribution')
+                    val += 1
+                    plt.tight_layout()
+                else:
+                    ## This is to remove the extra plots
+                    fig.delaxes(axes[i,j])
+
+    else:
+        for i in range(nrows):
+            for j in range(ncol):
+                if val in range(len(cat)):
+                    sns.countplot(x=df[cat[val]],order = df[cat[val]].drop_duplicates().sort_values(),ax=axes[i,j])
+                    axes[i,j].set_title(f'{str(cat[val])} Distribution')
+                    val += 1
+                    plt.tight_layout()
+                else:
+                    ## This is to remove the extra plots
+                    fig.delaxes(axes[i,j])
+        
+        if save_path != None:
+            name = 'Categorical_Distribution'
+            save_fig(name,save_path)
+
+## Note: we can use plt.tight_layout when plotting on subplots
 
 
 
@@ -222,6 +298,7 @@ def get_data():
 housing = get_data()
 
 numerical = housing.select_dtypes(exclude=['object']).columns.tolist()
+categorical = housing.select_dtypes(include=['object']).columns.tolist()
 
 if selected == 'Home':
     header = st.container()
@@ -244,6 +321,11 @@ if selected == 'Home':
         st.subheader('Numerical Features Distribution')
         st.write('This is the distribution of our numerical features')
         uni_num_hist(housing,numerical)
+
+        st.subheader('Categorical Features Distribution')
+        st.write('This is the distribution of our categorical features')
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        st.pyplot(uni_cat_count(housing,categorical))
 
         st.subheader('Correlation Matrix')
         st.write('This is the correlation matrix of our numerical features')
